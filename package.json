@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-solmarrow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node-RED nodes for SolMarrow, the free social media scheduler: save drafts, schedule or publish posts to 20+ networks from any flow.",
   "keywords": ["node-red", "solmarrow", "social media", "social media scheduler", "schedule posts", "instagram", "linkedin", "x", "facebook", "automation"],
   "license": "MIT",
@@ -18,7 +18,7 @@
   },
   "engines": { "node": ">=18" },
   "dependencies": {
-    "solmarrow": "^1.0.0"
+    "solmarrow": "^1.0.1"
   },
   "scripts": {
     "test": "node --test test/*.test.js"
