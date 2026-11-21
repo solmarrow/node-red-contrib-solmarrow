@@ -1,0 +1,166 @@
+<script type="text/javascript">
+  RED.nodes.registerType("solmarrow-config", {
+    category: "config",
+    defaults: {
+      name: { value: "" },
+      baseUrl: { value: "" },
+    },
+    credentials: {
+      apiKey: { type: "password", required: true },
+    },
+    label: function () {
+      return this.name || "SolMarrow";
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="solmarrow-config">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="SolMarrow" />
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-apiKey"><i class="fa fa-key"></i> API key</label>
+    <input type="password" id="node-config-input-apiKey" placeholder="smk_..." />
+  </div>
+  <div class="form-tips">
+    Create a key in SolMarrow: <b>Settings → API keys</b>. A key works in one workspace.
+  </div>
+  <div class="form-row" style="margin-top: 12px">
+    <label for="node-config-input-baseUrl"><i class="fa fa-globe"></i> API URL</label>
+    <input type="text" id="node-config-input-baseUrl" placeholder="https://app.solmarrow.com/api/v1 (leave empty)" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="solmarrow-config">
+  <p>Your SolMarrow API key.</p>
+  <h3>Details</h3>
+  <p>
+    In SolMarrow open <b>Settings → API keys</b>, create a key and paste it here. The key is stored in Node-RED's
+    encrypted credentials file and is never part of an exported flow. Leave <i>API URL</i> empty.
+  </p>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType("solmarrow-post", {
+    category: "social",
+    color: "#7FB2F7",
+    defaults: {
+      name: { value: "" },
+      server: { value: "", type: "solmarrow-config", required: true },
+      mode: { value: "draft" },
+      accounts: { value: "" },
+      delay: { value: 60, validate: RED.validators.number() },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "solmarrow.svg",
+    paletteLabel: "solmarrow post",
+    label: function () {
+      return this.name || { draft: "save draft", schedule: "schedule post", now: "publish post" }[this.mode] || "solmarrow post";
+    },
+    oneditprepare: function () {
+      const toggle = function () {
+        const m = $("#node-input-mode").val();
+        $(".sm-accounts").toggle(m !== "draft");
+        $(".sm-delay").toggle(m === "schedule");
+      };
+      $("#node-input-mode").on("change", toggle);
+      toggle();
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="solmarrow-post">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-key"></i> SolMarrow</label>
+    <input type="text" id="node-input-server" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-mode"><i class="fa fa-paper-plane"></i> Action</label>
+    <select id="node-input-mode">
+      <option value="draft">Save a draft</option>
+      <option value="schedule">Schedule</option>
+      <option value="now">Publish now</option>
+    </select>
+  </div>
+  <div class="form-row sm-accounts">
+    <label for="node-input-accounts"><i class="fa fa-users"></i> Account IDs</label>
+    <input type="text" id="node-input-accounts" placeholder="comma separated (from the solmarrow accounts node)" />
+  </div>
+  <div class="form-row sm-delay">
+    <label for="node-input-delay"><i class="fa fa-clock-o"></i> Minutes ahead</label>
+    <input type="text" id="node-input-delay" placeholder="60" style="width: 80px" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="solmarrow-post">
+  <p>Saves a draft, schedules a post or publishes now in SolMarrow.</p>
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">string | object</span></dt>
+    <dd>The post text, or an object <code>{ text, accountIds, mediaUrls, mediaIds, scheduleAt, mode }</code>.</dd>
+    <dt class="optional">accountIds <span class="property-type">array | string</span></dt>
+    <dd>Accounts to post to. Overrides the node setting.</dd>
+    <dt class="optional">mediaUrls <span class="property-type">array</span></dt>
+    <dd>Public https links to images or videos. They are copied into your SolMarrow media library first.</dd>
+    <dt class="optional">scheduleAt <span class="property-type">string | Date</span></dt>
+    <dd>When to publish (Schedule action), at least 5 minutes ahead. Otherwise <i>Minutes ahead</i> is used.</dd>
+  </dl>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">object</span></dt>
+    <dd>The post: <code>post_id</code>, <code>status</code>, <code>scheduled_at</code>, <code>calendar_url</code>.</dd>
+  </dl>
+  <h3>Details</h3>
+  <p>
+    <b>Save a draft</b> needs no accounts: the draft waits in your SolMarrow calendar. <b>Schedule</b> and
+    <b>Publish now</b> need account IDs; get them with the <i>solmarrow accounts</i> node.
+  </p>
+  <p>A retried message never creates a second post.</p>
+</script>
+
+<script type="text/javascript">
+  RED.nodes.registerType("solmarrow-accounts", {
+    category: "social",
+    color: "#7FB2F7",
+    defaults: {
+      name: { value: "" },
+      server: { value: "", type: "solmarrow-config", required: true },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "solmarrow.svg",
+    paletteLabel: "solmarrow accounts",
+    label: function () {
+      return this.name || "solmarrow accounts";
+    },
+  });
+</script>
+
+<script type="text/html" data-template-name="solmarrow-accounts">
+  <div class="form-row">
+    <label for="node-input-server"><i class="fa fa-key"></i> SolMarrow</label>
+    <input type="text" id="node-input-server" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" />
+  </div>
+</script>
+
+<script type="text/html" data-help-name="solmarrow-accounts">
+  <p>Lists the social accounts connected in your SolMarrow workspace.</p>
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">array</span></dt>
+    <dd>Accounts with <code>id</code>, <code>network</code>, <code>name</code>, <code>handle</code>, <code>status</code> and each network's posting rules.</dd>
+    <dt>workspaceId <span class="property-type">string</span></dt>
+    <dd>The workspace of the API key.</dd>
+  </dl>
+  <p>Copy the <code>id</code> values into a <i>solmarrow post</i> node, or pass them as <code>msg.accountIds</code>.</p>
+</script>
