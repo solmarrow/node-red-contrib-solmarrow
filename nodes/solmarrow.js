@@ -10,7 +10,7 @@ module.exports = function (RED) {
     this.name = config.name;
     this.baseUrl = (config.baseUrl || "").trim() || undefined;
     const apiKey = this.credentials && this.credentials.apiKey;
-    this.client = apiKey ? new SolMarrow({ apiKey, baseUrl: this.baseUrl, userAgent: "node-red-contrib-solmarrow/1.0.0" }) : null;
+    this.client = apiKey ? new SolMarrow({ apiKey, baseUrl: this.baseUrl, userAgent: "node-red-contrib-solmarrow/1.0.1" }) : null;
     this._workspace = null;
     this.workspaceId = async () => {
       if (!this.client) throw new Error("Add your SolMarrow API key to the SolMarrow config node.");
